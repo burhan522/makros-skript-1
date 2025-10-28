@@ -1,0 +1,55 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 Sub SchnelleDuplikatEntfernung_FlexibleSpalte()\
+    Dim ws        As Worksheet\
+    Dim lastRow   As Long\
+    Dim lastCol   As Long\
+    Dim dataRng   As Range\
+    Dim colLetter As String\
+    Dim colNum    As Long\
+    \
+    Set ws = ActiveSheet\
+    \
+    ' Spalte abfragen (z.B. H)\
+    colLetter = UCase(InputBox("Gib die Spalte ein, in der Duplikate gel\'f6scht werden sollen (z.B. H):", _\
+                               "Spalte w\'e4hlen", "H"))\
+    If colLetter = "" Then Exit Sub\
+    \
+    ' Spaltennummer ermitteln\
+    On Error GoTo ErrHandler\
+    colNum = ws.Range(colLetter & "1").Column\
+    On Error GoTo 0\
+    \
+    ' Performance-Tuning abschalten\
+    With Application\
+        .ScreenUpdating   = False\
+        .EnableEvents     = False\
+        .Calculation      = xlCalculationManual\
+    End With\
+    \
+    ' letzte bef\'fcllte Zeile in der gew\'e4hlten Spalte / letzte Spalte insgesamt\
+    lastRow = ws.Cells(ws.Rows.Count, colLetter).End(xlUp).Row\
+    lastCol = ws.Cells(1, ws.Columns.Count).End(xlToLeft).Column\
+    \
+    ' gesamten Datenbereich von A1 bis (lastCol, lastRow) definieren\
+    Set dataRng = ws.Range(ws.Cells(1, 1), ws.Cells(lastRow, lastCol))\
+    \
+    ' Duplikate nach gew\'e4hlter Spalte entfernen \'96 Header in Zeile 1:\
+    dataRng.RemoveDuplicates Columns:=colNum, Header:=xlYes\
+    \
+    ' Performance-Einstellungen zur\'fccksetzen\
+    With Application\
+        .Calculation      = xlCalculationAutomatic\
+        .EnableEvents     = True\
+        .ScreenUpdating   = True\
+    End With\
+    \
+    Exit Sub\
+ErrHandler:\
+    MsgBox "Ung\'fcltige Spalte: " & colLetter, vbExclamation\
+End Sub}
